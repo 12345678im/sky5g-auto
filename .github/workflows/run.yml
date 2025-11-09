@@ -3,8 +3,8 @@ name: Run Sky5G Auto Script
 on:
   workflow_dispatch:
   schedule:
-    - cron: "30 6 * * *"  # يومياً الساعة 6:30 صباحاً UTC
-    - cron: "0 19 * * *"  # يومياً الساعة 7:00 مساءً UTC
+    - cron: "30 4 * * *"  # يومياً الساعة 6:30 صباحاً بتوقيت ف
+    - cron: "0 17 * * *"  # يومياً الساعة 7:00 مساءً بتوقيت ف
 
 jobs:
   run:
