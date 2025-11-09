@@ -1,9 +1,14 @@
-import { chromium } from 'playwright';
+import { chromium, installBrowsers } from 'playwright';
 import fs from 'fs/promises';
 import path from 'path';
 
+// تثبيت المتصفحات تلقائيًا قبل التشغيل
+await installBrowsers();
+
 (async () => {
-  const phones = (await fs.readFile('phones.txt', 'utf8')).split('\n').filter(Boolean);
+  const phones = (await fs.readFile('phones.txt', 'utf8'))
+    .split('\n')
+    .filter(Boolean);
   const resultPath = path.resolve('result.txt');
   const browser = await chromium.launch({ headless: true });
 
@@ -28,7 +33,6 @@ import path from 'path';
       await page.click('button.update-btn');
       console.log(`📤 إرسال: ${phone}`);
 
-      // انتظر إشعار النتيجة
       try {
         await page.waitForFunction(() => {
           const alert = document.querySelector('.swal2-popup, .bootbox-alert, .alert-success, .alert-danger');
