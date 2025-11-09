@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { execSync } from 'child_process';
 
-// تثبيت المتصفحات تلقائيًا
+// تثبيت المتصفح تلقائيًا إن لم يكن موجودًا
 try {
   console.log('⏳ تثبيت متصفحات Playwright إذا لم تكن موجودة...');
   execSync('npx playwright install chromium', { stdio: 'inherit' });
@@ -34,51 +34,3 @@ try {
         console.error(`${msg}: ${phone}`);
         await fs.appendFile(resultPath, `${phone} → ${msg}\n`);
         await page.close();
-        continue;
-      }
-
-      await page.click('button.update-btn');
-      console.log(`📤 إرسال: ${phone}`);
-
-      try {
-        await page.waitForFunction(() => {
-          const alert = document.querySelector('.swal2-popup, .bootbox-alert, .alert-success, .alert-danger');
-          return alert && alert.innerText.trim().length > 0;
-        }, { timeout: 2 * 60 * 1000 });
-
-        const resultText = await page.evaluate(() => {
-          const alert = document.querySelector('.swal2-popup, .bootbox-alert, .alert-success, .alert-danger');
-          return alert ? alert.innerText.trim() : '';
-        });
-
-        if (/تم|نجاح|Done|Success/i.test(resultText)) {
-          const msg = `✅ تم بنجاح`;
-          console.log(`${msg}: ${phone}`);
-          await fs.appendFile(resultPath, `${phone} → ${msg}\n`);
-        } else if (/خطأ|error|غير موجود|فشل/i.test(resultText)) {
-          const msg = `❌ فشل أو خطأ: ${resultText}`;
-          console.warn(`${msg}: ${phone}`);
-          await fs.appendFile(resultPath, `${phone} → ${msg}\n`);
-        } else {
-          const msg = `⚠️ نتيجة غير معروفة: ${resultText}`;
-          console.warn(`${msg}: ${phone}`);
-          await fs.appendFile(resultPath, `${phone} → ${msg}\n`);
-        }
-
-      } catch {
-        const msg = `❌ لم تظهر نتيجة خلال دقيقتين`;
-        console.error(`${msg}: ${phone}`);
-        await fs.appendFile(resultPath, `${phone} → ${msg}\n`);
-      }
-
-    } catch (err) {
-      const msg = `❌ خطأ أثناء المعالجة | ${err.message}`;
-      console.error(`${msg}: ${phone}`);
-      await fs.appendFile(resultPath, `${phone} → ${msg}\n`);
-    }
-
-    await page.close();
-  }
-
-  await browser.close();
-})();
