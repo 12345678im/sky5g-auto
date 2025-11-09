@@ -1,9 +1,16 @@
-import { chromium, installBrowsers } from 'playwright';
+import { chromium } from 'playwright';
 import fs from 'fs/promises';
 import path from 'path';
+import { execSync } from 'child_process';
 
-// تثبيت المتصفحات تلقائيًا قبل التشغيل
-await installBrowsers();
+// تثبيت المتصفحات تلقائيًا
+try {
+  console.log('⏳ تثبيت متصفحات Playwright إذا لم تكن موجودة...');
+  execSync('npx playwright install chromium', { stdio: 'inherit' });
+} catch (err) {
+  console.error('❌ فشل تثبيت المتصفح:', err.message);
+  process.exit(1);
+}
 
 (async () => {
   const phones = (await fs.readFile('phones.txt', 'utf8'))
