@@ -1,0 +1,13 @@
+{
+  "name": "sky5g-auto",
+  "version": "1.0.0",
+  "description": "Script Playwright لتحديث أرقام Sky Telecom تلقائيًا",
+  "main": "script.js",
+  "type": "module",
+  "scripts": {
+    "start": "node script.js"
+  },
+  "dependencies": {
+    "playwright": "^1.49.0"
+  }
+}
