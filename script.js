@@ -34,3 +34,54 @@ try {
         console.error(`${msg}: ${phone}`);
         await fs.appendFile(resultPath, `${phone} → ${msg}\n`);
         await page.close();
+        continue;
+      }
+
+      await page.click('button.update-btn');
+      console.log(`📤 إرسال: ${phone}`);
+
+      try {
+        // انتظار ظهور عنصر النتيجة
+        await page.waitForFunction(() => {
+          const notif = document.querySelector('.notification');
+          return notif && notif.innerText.trim().length > 0 && notif.offsetParent !== null;
+        }, { timeout: 2 * 60 * 1000 });
+
+        // قراءة النص داخل العنصر
+        const resultText = await page.evaluate(() => {
+          const notif = document.querySelector('.notification');
+          return notif ? notif.innerText.trim() : '';
+        });
+
+        // تحليل النتيجة
+        if (/تم|نجاح|Done|Success/i.test(resultText)) {
+          const msg = `✅ تم بنجاح`;
+          console.log(`${msg}: ${phone}`);
+          await fs.appendFile(resultPath, `${phone} → ${msg}\n`);
+        } else if (/خطأ|error|غير موجود|فشل/i.test(resultText)) {
+          const msg = `❌ فشل أو خطأ: ${resultText}`;
+          console.warn(`${msg}: ${phone}`);
+          await fs.appendFile(resultPath, `${phone} → ${msg}\n`);
+        } else {
+          const msg = `⚠️ نتيجة غير معروفة: ${resultText}`;
+          console.warn(`${msg}: ${phone}`);
+          await fs.appendFile(resultPath, `${phone} → ${msg}\n`);
+        }
+
+      } catch {
+        const msg = `❌ لم تظهر نتيجة خلال دقيقتين`;
+        console.error(`${msg}: ${phone}`);
+        await fs.appendFile(resultPath, `${phone} → ${msg}\n`);
+      }
+
+    } catch (err) {
+      const msg = `❌ خطأ أثناء المعالجة | ${err.message}`;
+      console.error(`${msg}: ${phone}`);
+      await fs.appendFile(resultPath, `${phone} → ${msg}\n`);
+    }
+
+    await page.close();
+  }
+
+  await browser.close();
+})();
