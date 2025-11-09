@@ -53,9 +53,12 @@ try {
           return notif ? notif.innerText.trim() : '';
         });
 
-        // تحليل النتيجة
-        if (/تم|نجاح|Done|Success/i.test(resultText)) {
-          const msg = `✅ تم بنجاح`;
+        // 🔍 تحليل النتيجة وتحديد حالتها
+        if (
+          /تم|نجاح|Done|Success|تحديث حزمة|إعادة التشغيل/i.test(resultText)
+        ) {
+          // ✅ في حال ظهور "جاري تحديث حزمة التصفح..." تُعتبر نجاح
+          const msg = `✅ تم بنجاح (${resultText})`;
           console.log(`${msg}: ${phone}`);
           await fs.appendFile(resultPath, `${phone} → ${msg}\n`);
         } else if (/خطأ|error|غير موجود|فشل/i.test(resultText)) {
